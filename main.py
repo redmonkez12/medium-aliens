@@ -4,14 +4,13 @@ import sys
 from Settings import Settings
 from Player import Player
 from bullet import Bullet
+from alien import Alien
 
 
 class AlienInvasion:
 
     def __init__(self):
         pygame.init()
-
-        self.bullets = pygame.sprite.Group()
 
         self.settings = Settings()  # use settings class
 
@@ -23,6 +22,11 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Aliens")
         self.ship = Player(self)
+
+        self.bullets = pygame.sprite.Group()
+
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
 
         self.clock = pygame.time.Clock()
 
@@ -70,8 +74,29 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.ship.blitme()
+        self.aliens.draw(self.screen)
 
         pygame.display.flip()
+
+    def _create_alien(self, x_position, y_position):
+        new_alien = Alien(self)
+        new_alien.x = x_position
+        new_alien.rect.x = x_position
+        new_alien.rect.y = y_position
+        self.aliens.add(new_alien)
+
+    def _create_fleet(self):
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        current_x, current_y = alien_width, alien_height
+
+        while current_y < (self.settings.screen_height - 8 * alien_height):
+            while current_x < (self.settings.screen_width - 2 * alien_width):
+                self._create_alien(current_x, current_y)
+                current_x += 2 * alien_width
+
+            current_x = alien_width
+            current_y += 2 * alien_height
 
 
 if __name__ == "__main__":
